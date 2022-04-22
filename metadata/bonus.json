@@ -1,0 +1,12 @@
+{
+    "name": "PAC DAO BONUS",
+    "description": "Bonus NFT for Supporters of Crypto Activism",
+    "external_link": "https://pac.xyz/",
+    "image": "ipfs://QmWTv7fMg6fXx1Bo5XtwCnpZ1oKgFSuEDYdCV5YrSc5rTJ",
+    "attributes": [
+        {
+            "trait_type": "Bonus",
+            "value": 1
+        }
+    ]
+}
