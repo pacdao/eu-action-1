@@ -45,22 +45,22 @@ def owner(accounts):
 
 @pytest.fixture(scope="function")
 def nft(owner):
-    w = EUWhitelist.deploy({"from": owner})
+    nft = VyperNFT.deploy("PAC DAO EU Action NFT 1", "PAC-EU-1", {"from": owner})
+    #w = EUWhitelist.deploy({"from": owner})
     tokens = [
         "0x63994B223F01b943eFf986b1B379312508dc15F8",  # Founder
         "0x3459cfce9c0306eb1d5d0e2b78144c9fbd94c87b",  # Gov
-        w,
+    #    w,
     ]
-    nft = VyperNFT.deploy("PAC DAO EU Action NFT 1", "PAC-EU-1", {"from": owner})
     minter = EUMinter.deploy(nft, tokens, {"from": owner})
-    nft.transferOwner(minter, {"from": owner})
+    nft.transferMinter(minter, {"from": owner})
 
     return nft
 
 
 @pytest.fixture(scope="function")
 def minter(nft):
-    return EUMinter.at(nft.owner())
+    return EUMinter.at(nft.minter())
 
 
 @pytest.fixture(scope="function")

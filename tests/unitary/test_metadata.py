@@ -15,7 +15,7 @@ def test_mints_with_updated_metadata(nft, minter, owner, alice):
 
 
 def test_new_owner_can_update_metadata(nft, minter, alice, bob, owner):
-    minter.update_owner(bob, {"from": owner})
+    minter.set_owner(bob, {"from": owner})
     new_data = "new uri"
     minter.set_default_metadata(new_data, {"from": bob})
     minter.mint(1, {"from": alice})

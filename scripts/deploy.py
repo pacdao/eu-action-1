@@ -1,4 +1,4 @@
-from brownie import ZERO_ADDRESS, accounts, network, whitelist, VyperNFT, EUMinter
+from brownie import ZERO_ADDRESS, accounts, network, EUWhitelist, VyperNFT, EUMinter
 from brownie.network import max_fee, priority_fee
 
 
@@ -24,7 +24,7 @@ def main():
 
         deployer = accounts.load("husky")
         beneficiary_address = deployer
-        publish_source = True
+        publish_source = False
     elif network.show_active() in ["mainnet", "mainnet-fork"]:
         tokens = [
             "0x63994B223F01b943eFf986b1B379312508dc15F8",  # Founder
@@ -43,8 +43,11 @@ def main():
         deployer = accounts.load("husky")
         publish_source = True
 
-    w = whitelist.deploy({"from": deployer})
+    w = EUWhitelist.deploy({"from": deployer})
     tokens.append(w)
-    return PACDaoEUAction.deploy(
-        beneficiary_address, tokens, {"from": deployer}, publish_source=publish_source
-    )
+
+    nft = VyperNFT.deploy("PAC DAO EU Action NFT 1", "PAC-EU-1", {'from': deployer}, publish_source=publish_source)
+    minter = EUMinter.deploy(nft, tokens, {'from': deployer}, publish_source=publish_source)
+    nft.transferMinter(minter, {'from': deployer})
+    return minter
+

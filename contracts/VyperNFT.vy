@@ -47,6 +47,7 @@ ownerToNFTokenCount: HashMap[address, uint256]
 ownerToOperators: HashMap[address, HashMap[address, bool]]
 
 owner: public(address)
+minter: public(address)
 
 totalMinted: uint256
 totalBurned: uint256
@@ -72,6 +73,7 @@ SUPPORTED_INTERFACES: constant(bytes4[5]) = [
 @external
 def __init__(_name: String[32], _symbol: String[32]):
     self.owner = msg.sender
+    self.minter = msg.sender
     NAME = _name
     SYMBOL = _symbol
     self.defaultURI = "QmavEQ84TMzbz7CEktD7SVE1vBQqeaBj4JGLXFgNmp3MPG"
@@ -329,9 +331,9 @@ def mint(receiver: address) -> bool:
          Throws if `_to` is zero address.
     @return A boolean that indicates if the operation was successful.
     """
-    assert msg.sender == self.owner
-    assert receiver != empty(address)
-    assert self.totalMinted < MAX_SUPPLY
+    assert msg.sender == self.minter or msg.sender == self.owner # dev: Only Admin
+    assert receiver != empty(address) # dev: Cannot mint to empty address
+    assert self.totalMinted < MAX_SUPPLY # dev: Minted must be less than MAX_SUPPLY
 
     tokenId: uint256 = self.totalMinted
     # Add NFT. Throws if `_tokenId` is owned by someone
@@ -339,6 +341,13 @@ def mint(receiver: address) -> bool:
     log Transfer(empty(address), receiver, tokenId)
     self.totalMinted += 1
     return True
+
+
+@external
+def transferMinter(newAddr: address):
+    assert msg.sender == self.owner or msg.sender == self.minter  # dev: Only Admin
+    self.minter = newAddr
+
 
 
 @external
@@ -437,20 +446,20 @@ def _exists(tokenId: uint256) -> bool:
 
 @external
 def setTokenURI(tokenId: uint256, newURI: String[128]):
-    assert msg.sender == self.owner  # dev: Only Owner
+    assert msg.sender == self.owner or msg.sender == self.minter  # dev: Only Admin
     assert self._exists(tokenId)
     self.customURI[tokenId] = newURI
 
 
 @external
 def setContractURI(newURI: String[128]):
-    assert msg.sender == self.owner  # dev: Only Owner
+    assert msg.sender == self.owner or msg.sender == self.minter  # dev: Only Admin
     self.contractStemURI = newURI
 
 
 @external
 def setDefaultMetadata(newURI: String[128]):
-    assert msg.sender == self.owner
+    assert msg.sender == self.owner or msg.sender == self.minter # dev: Only Admin
     self.defaultURI = newURI
 
 
@@ -458,9 +467,9 @@ def setDefaultMetadata(newURI: String[128]):
 
 
 @external
-def transferOwner(new_addr: address):
+def transferOwner(newAddr: address):
     assert msg.sender == self.owner  # dev: Only Owner
-    self.owner = new_addr
+    self.owner = newAddr
 
 
 ### ERC721-ENUMERABLE FUNCTIONS ###

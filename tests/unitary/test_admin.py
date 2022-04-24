@@ -3,7 +3,7 @@ from brownie import ZERO_ADDRESS
 
 
 def test_new_owner_can_receive(minted, owner, alice, bob):
-    minted.update_owner(bob, {"from": owner})
+    minted.set_owner(bob, {"from": owner})
     bob_init = bob.balance()
     minted.withdraw({"from": alice})
     assert bob.balance() >= bob_init
@@ -11,7 +11,7 @@ def test_new_owner_can_receive(minted, owner, alice, bob):
 
 def test_new_owner_can_withdraw(minted, alice, bob, owner, accounts):
     accounts[0].transfer(minted, 10 ** 18)
-    minted.update_owner(bob, {"from": owner})
+    minted.set_owner(bob, {"from": owner})
     bob_init = bob.balance()
     minted.withdraw({"from": bob})
     assert bob.balance() > bob_init
@@ -19,12 +19,12 @@ def test_new_owner_can_withdraw(minted, alice, bob, owner, accounts):
 
 def test_nonowner_cannot_transfer_owner(minted, alice, bob):
     with brownie.reverts():
-        minted.update_owner(bob, {"from": bob})
+        minted.set_owner(bob, {"from": bob})
 
 
 def test_new_owner_can_update_owner(minted, alice, bob, owner, accounts):
-    minted.update_owner(bob, {"from": owner})
-    minted.update_owner(alice, {"from": bob})
+    minted.set_owner(bob, {"from": owner})
+    minted.set_owner(alice, {"from": bob})
     accounts[3].transfer(minted, 10 ** 18)
     alice_init = alice.balance()
     minted.withdraw({"from": bob})

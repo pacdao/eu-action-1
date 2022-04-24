@@ -9,6 +9,8 @@ interface NFT:
     def setTokenURI(tokenId: uint256, newURI: String[128]): nonpayable
     def setContractURI(newURI: String[128]): nonpayable
     def setDefaultMetadata(newURI: String[128]): nonpayable
+    def transferOwner(newAddr: address): nonpayable
+    def transferMinter(newAddr: address): nonpayable
 
 NFT_ADDR: immutable(address)
 MAX_MINT: immutable(uint256)
@@ -109,15 +111,26 @@ def withdraw():
 
 
 @external
-def update_mint_price(mint_price: uint256):
+def set_mint_price(mint_price: uint256):
     assert msg.sender == self.owner  # dev: Only Admin
     self.mint_price = mint_price
 
 
 @external
-def update_owner(new_owner: address):
+def set_owner(new_owner: address):
     assert msg.sender == self.owner  # dev: Only Admin
     self.owner = new_owner
+
+@external
+def set_nft_owner(new_owner: address):
+    assert msg.sender == self.owner  # dev: Only Admin
+    NFT(NFT_ADDR).transferMinter(new_owner)
+
+
+@external
+def set_nft_minter(new_owner: address):
+    assert msg.sender == self.owner  # dev: Only Admin
+    NFT(NFT_ADDR).transferMinter(new_owner)
 
 
 @external
