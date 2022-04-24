@@ -33,12 +33,12 @@ def test_withdrawal_increases_balance(nft_funded, alice, accounts, beneficiary):
     assert final_balance > init_balance
 
 
-def test_can_receive_funds_through_fallback(nft, alice, bob, accounts, beneficiary):
+def test_can_receive_funds_through_fallback(minter, alice, bob, accounts, beneficiary):
     init_balance = beneficiary.balance()
     bob_balance = bob.balance()
-    accounts[3].transfer(nft, 10 ** 18)
+    accounts[3].transfer(minter, 10 ** 18)
 
-    bob.transfer(nft, bob_balance)
-    nft.withdraw({"from": alice})
+    bob.transfer(minter, bob_balance)
+    minter.withdraw({"from": alice})
     final_balance = beneficiary.balance()
     assert final_balance - init_balance >= bob_balance

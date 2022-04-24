@@ -2,80 +2,82 @@ import brownie
 from brownie import ZERO_ADDRESS
 
 
-def test_new_owner_can_receive(nft_minted, owner, alice, bob):
-    nft_minted.updateBeneficiary(bob, {"from": owner})
+def test_new_owner_can_receive(minted, owner, alice, bob):
+    minted.update_owner(bob, {"from": owner})
     bob_init = bob.balance()
-    nft_minted.withdraw({"from": alice})
+    minted.withdraw({"from": alice})
     assert bob.balance() >= bob_init
 
 
-def test_new_owner_can_withdraw(nft_minted, alice, bob, owner, accounts):
-    accounts[0].transfer(nft_minted, 10 ** 18)
-    nft_minted.updateBeneficiary(bob, {"from": owner})
+def test_new_owner_can_withdraw(minted, alice, bob, owner, accounts):
+    accounts[0].transfer(minted, 10 ** 18)
+    minted.update_owner(bob, {"from": owner})
     bob_init = bob.balance()
-    nft_minted.withdraw({"from": bob})
+    minted.withdraw({"from": bob})
     assert bob.balance() > bob_init
 
 
-def test_nonowner_cannot_transfer_owner(nft_minted, alice, bob):
+def test_nonowner_cannot_transfer_owner(minted, alice, bob):
     with brownie.reverts():
-        nft_minted.updateBeneficiary(bob, {"from": bob})
+        minted.update_owner(bob, {"from": bob})
 
 
-def test_new_owner_can_update_owner(nft_minted, alice, bob, owner, accounts):
-    nft_minted.updateBeneficiary(bob, {"from": owner})
-    nft_minted.updateBeneficiary(alice, {"from": bob})
-    accounts[3].transfer(nft_minted, 10 ** 18)
+def test_new_owner_can_update_owner(minted, alice, bob, owner, accounts):
+    minted.update_owner(bob, {"from": owner})
+    minted.update_owner(alice, {"from": bob})
+    accounts[3].transfer(minted, 10 ** 18)
     alice_init = alice.balance()
-    nft_minted.withdraw({"from": bob})
+    minted.withdraw({"from": bob})
     assert alice.balance() > alice_init
 
 
-def test_fallback_receivable(nft, alice, accounts):
-    founder_init = nft.balance()
-    accounts[1].transfer(nft, 10 ** 18)
-    assert nft.balance() - founder_init == 10 ** 18
+def test_fallback_receivable(minter, alice, accounts):
+    founder_init = minter.balance()
+    accounts[1].transfer(minter, 10 ** 18)
+    assert minter.balance() - founder_init == 10 ** 18
 
 
-def test_fallback_funds_withdrawable(nft, owner, bob, accounts):
-    founder_init = nft.balance()
-    accounts[0].transfer(nft, 10 ** 18)
+def test_fallback_funds_withdrawable(minter, owner, bob, accounts):
+    founder_init = minter.balance()
+    accounts[0].transfer(minter, 10 ** 18)
     owner_init = owner.balance()
-    nft.withdraw({"from": owner})
+    minter.withdraw({"from": owner})
     assert owner.balance() - owner_init == 10 ** 18 + founder_init
 
 
-def test_set_token_uri(nft_minted, owner):
+def test_set_token_uri(minted, nft, owner):
     string = "test"
-    nft_minted.setTokenUri(1, string, {"from": owner})
-    assert nft_minted.tokenURI(1) == nft_minted.baseURI() + string
+    minted.set_token_uri(1, string, {"from": owner})
+
+    assert nft.tokenURI(1) == string
 
 
-def test_non_admin_cannot_mint_for(nft, accounts):
-    with brownie.reverts("dev: Only Admin"):
-        nft.mintFor(accounts[1], {"from": accounts[2]})
+def test_non_admin_cannot_mint_for(minter, nft, accounts):
+    with brownie.reverts():
+        minter.mint_for(accounts[1], {"from": accounts[2]})
     assert nft.balanceOf(accounts[1]) == 0
 
 
-def test_admin_can_mint_for(nft, accounts, owner):
-    assert nft.isWhitelisted(accounts[1]) == False
-    nft.mintFor(accounts[1], {"from": owner})
+def test_admin_can_mint_for(minter, nft, accounts, owner):
+    assert minter.is_whitelisted(accounts[1]) == False
+    minter.mint_for(accounts[1], {"from": owner})
     assert nft.balanceOf(accounts[1]) == 1
 
 
-def test_non_admin_cannot_set_token_uri(nft_minted, bob):
-    init_uri = nft_minted.tokenURI(1)
+def test_non_admin_cannot_set_token_uri(minted, nft, bob):
+    init_uri = nft.tokenURI(1)
     string = "test"
-    with brownie.reverts("dev: Only Admin"):
-        nft_minted.setTokenUri(1, string, {"from": bob})
-    assert nft_minted.tokenURI(1) == init_uri
+    with brownie.reverts():
+        minted.set_token_uri(1, string, {"from": bob})
+    assert nft.tokenURI(1) == init_uri
 
 
-def test_non_admin_cannot_update_token_addrs(nft, bob):
-    with brownie.reverts("dev: Only Admin"):
-        nft.updateTokenAddrs([ZERO_ADDRESS], {"from": bob})
+def test_non_admin_cannot_update_token_addrs(minted, bob):
+    with brownie.reverts():
+        minted.set_whitelist_addrs([ZERO_ADDRESS], {"from": bob})
 
 
-def test_admin_can_update_token_addrs(nft, owner):
-    nft.updateTokenAddrs([ZERO_ADDRESS])
-    assert nft.tokenAddrs()[0] == ZERO_ADDRESS
+def test_admin_can_update_token_addrs(minted, owner):
+    assert minted.whitelist_tokens(0) != ZERO_ADDRESS
+    minted.set_whitelist_addrs([ZERO_ADDRESS])
+    assert minted.whitelist_tokens(0) == ZERO_ADDRESS
