@@ -1,8 +1,0 @@
-{
-  "name": "PAC DAO: Bonus NFT 1",
-  "description": "Bonus NFT for Supporters of Crypto Activism",
-  "image": "ipfs://QmXERmszxp13JDWx91HMz9KyreCUEtLqqp2F7c2yZzzrmT",
-  "external_link": "https://pac.xyz/",
-  "seller_fee_basis_points": 100, 
-  "fee_recipient": "0xf27ac88ac7e80487f21e5c2c847290b2ae5d7b8e" 
-}
