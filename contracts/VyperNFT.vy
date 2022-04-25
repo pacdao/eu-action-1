@@ -4,7 +4,7 @@
 # @license MIT
 # Modified from: https://github.com/vyperlang/vyper/blob/de74722bf2d8718cca46902be165f9fe0e3641dd/examples/tokens/ERC721.vy
 
-# this is an UNAUDITED implementation of an ERC721 contract.
+# This is an UNAUDITED implementation of an ERC721 contract.
 
 from vyper.interfaces import ERC165
 from vyper.interfaces import ERC721
@@ -49,7 +49,7 @@ ownerToOperators: HashMap[address, HashMap[address, bool]]
 owner: public(address)
 minter: public(address)
 
-totalMinted: uint256
+totalMinted: public(uint256)
 totalBurned: uint256
 
 NAME: immutable(String[32])
@@ -57,7 +57,9 @@ SYMBOL: immutable(String[32])
 
 defaultURI: public(String[128])
 baseURI: public(String[10])
+goldURI: public(String[128])
 customURI: HashMap[uint256, String[128]]
+goldTokens: HashMap[uint256, bool]
 contractStemURI: String[128]
 
 # supported ERC165 interface IDs
@@ -76,8 +78,10 @@ def __init__(_name: String[32], _symbol: String[32]):
     self.minter = msg.sender
     NAME = _name
     SYMBOL = _symbol
-    self.defaultURI = "QmavEQ84TMzbz7CEktD7SVE1vBQqeaBj4JGLXFgNmp3MPG"
     self.baseURI = "ipfs://"
+    self.contractStemURI = "QmUKHs5tM2wikjce3EfzbjCBC738pzE5yXr9i29eSMf4R5"
+    self.defaultURI = "QmQ7KYqYMfCtKUKUoVLw6Kane7ZZBZ7pNhffXUeVVyTyH7"
+    self.goldURI = "QmPBmyenadjRNPJ4pfuejqJwGzPXxEMtd966qMUruznCk7"
 
 
 @pure
@@ -324,7 +328,7 @@ def setApprovalForAll(_operator: address, _approved: bool):
 
 
 @external
-def mint(receiver: address) -> bool:
+def mint(receiver: address, isGold: bool) -> bool:
     """
     @dev Function to mint tokens
          Throws if `msg.sender` is not the minter.
@@ -340,39 +344,46 @@ def mint(receiver: address) -> bool:
     self._addTokenTo(receiver, tokenId)
     log Transfer(empty(address), receiver, tokenId)
     self.totalMinted += 1
+    if isGold:
+        self.goldTokens[tokenId] = True
     return True
 
 
 @external
 def transferMinter(newAddr: address):
+    """
+    @dev Update the address authorized to mint (Admin only)
+    @param newAddr New minter address
+    """
+
     assert msg.sender == self.owner or msg.sender == self.minter  # dev: Only Admin
     self.minter = newAddr
 
 
 
-@external
-def burn(tokenId: uint256) -> bool:
-    """
-    @dev Burns a specific ERC721 token.
-         Throws unless `msg.sender` is the current owner, an authorized operator, or the approved
-         address for this NFT.
-         Throws if `tokenId` is not a valid NFT.
-    @param tokenId uint256 id of the ERC721 token to be burned.
-    """
-    # Check requirements
-    assert self._isApprovedOrOwner(msg.sender, tokenId)
-
-    owner: address = self.idToOwner[tokenId]
-
-    # Throws if `tokenId` is not a valid NFT
-    assert owner != empty(address)
-
-    self._clearApproval(owner, tokenId)
-    self._removeTokenFrom(owner, tokenId)
-
-    log Transfer(owner, empty(address), tokenId)
-
-    return True
+#@external
+#def burn(tokenId: uint256) -> bool:
+#    """
+#    @dev Burns a specific ERC721 token.
+#         Throws unless `msg.sender` is the current owner, an authorized operator, or the approved
+#         address for this NFT.
+#         Throws if `tokenId` is not a valid NFT.
+#    @param tokenId uint256 id of the ERC721 token to be burned.
+#    """
+#    # Check requirements
+#    assert self._isApprovedOrOwner(msg.sender, tokenId)
+#    
+#    owner: address = self.idToOwner[tokenId]
+#
+#    # Throws if `tokenId` is not a valid NFT
+#    assert owner != empty(address)
+#
+#    self._clearApproval(owner, tokenId)
+#    self._removeTokenFrom(owner, tokenId)
+#
+#    log Transfer(owner, empty(address), tokenId)
+#
+#    return True
 
 
 @external
@@ -422,6 +433,8 @@ def _uint_to_string(_value: uint256) -> String[78]:
 def tokenURI(tokenId: uint256) -> String[138]:
     if self.customURI[tokenId] != "":
         return self.customURI[tokenId]
+    elif self.goldTokens[tokenId] == True:
+        return concat(self.baseURI, self.goldURI)
     else:
         return concat(self.baseURI, self.defaultURI)
 
@@ -512,3 +525,4 @@ def tokenOfOwnerByIndex(owner: address, index: uint256) -> uint256:
 
     assert False, "ERC721Enumerable: global index out of bounds"
     return 0
+
