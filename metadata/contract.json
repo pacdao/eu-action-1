@@ -1,0 +1,8 @@
+{
+  "name": "PACDAO EU ACTION NFT 1",
+  "description": "Protecting Cryptocurrency in the EU",
+  "image": "ipfs://QmSc99Jctw1dnRKXppgoshcoq6LZiuHYBnmPGs6L1A6UzJ",
+  "external_link": "https://pac.xyz/",
+  "seller_fee_basis_points": 100, 
+  "fee_recipient": "0xf27ac88ac7e80487f21e5c2c847290b2ae5d7b8e" 
+}

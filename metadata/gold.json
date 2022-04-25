@@ -1,0 +1,20 @@
+{
+    "name": "PAC DAO EU ACTION 1",
+    "description": "Protecting Cryptocurrency in the EU",
+    "external_link": "https://pac.xyz/",
+    "image": "ipfs://QmSc99Jctw1dnRKXppgoshcoq6LZiuHYBnmPGs6L1A6UzJ",
+    "attributes": [
+        {
+            "trait_type": "Rarity",
+            "value": "Rare"
+        },
+        {
+            "trait_type": "Border",
+            "value": "Gold"
+        },
+        {
+            "trait_type": "Region",
+            "value": "EU"
+        }
+    ]
+}
