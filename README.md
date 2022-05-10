@@ -21,6 +21,8 @@ To raise awareness, PAC DAO is offering a free (+gas) mint of this NFT by artist
 
 All others may mint for the price of 0.042 -- with all funds being dedicated to support EU Activism via determination by the DAO
 
+[OpenSea](https://opensea.io/collection/pacdao-eu-action-nft-1) | [Minter Contract](https://etherscan.io/address/0xbd760296c54e7c910d0f181b92ad704ff109fa01) | [NFT Contract](https://etherscan.io/address/0xb5e746af9ef99570df97380c5601ede0011f25a1)
+
 ### Eligible Tokens
 
  * [Founder NFT](https://etherscan.io/address/0x63994B223F01b943eFf986b1B379312508dc15F8)
